@@ -1,0 +1,28 @@
+# Convenience file for LOCAL DEVELOPMENT only — spins up a PostgreSQL
+# instance that matches backend/.env.example out of the box.
+#
+# Usage:
+#   docker compose up -d
+#   cp backend/.env.example backend/.env   # then edit if you changed anything below
+#   cd backend && npm install && npm run db:init && npm run dev
+#
+# This is NOT required if you already have PostgreSQL installed, or if
+# you're pointing the app at a managed/cloud Postgres instance instead.
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mhap_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mhap_aluminum
+      POSTGRES_USER: mhap_user
+      POSTGRES_PASSWORD: change_me
+    ports:
+      - '5432:5432'
+    volumes:
+      - mhap_pgdata:/var/lib/postgresql/data
+
+volumes:
+  mhap_pgdata:

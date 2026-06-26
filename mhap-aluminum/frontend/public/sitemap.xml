@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Static starter sitemap. Update the domain below once the site is live,
+  and consider generating this dynamically from the projects/services
+  tables if the catalog grows large.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.mhapaluminum.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://www.mhapaluminum.com/about</loc><priority>0.8</priority></url>
+  <url><loc>https://www.mhapaluminum.com/services</loc><priority>0.8</priority></url>
+  <url><loc>https://www.mhapaluminum.com/projects</loc><priority>0.8</priority></url>
+  <url><loc>https://www.mhapaluminum.com/contact</loc><priority>0.6</priority></url>
+  <url><loc>https://www.mhapaluminum.com/quote</loc><priority>0.6</priority></url>
+</urlset>
