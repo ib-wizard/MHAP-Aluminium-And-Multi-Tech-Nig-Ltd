@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, FolderKanban, Phone } from 'lucide-react';
 import { useQuery } from '../hooks/useQuery';
-import { getCompany, getServices, getProjects, getTestimonials } from '../api/client';
+import { getCompany, getServices, getProjects, getTestimonials, resolveAssetUrl } from '../api/client';
 import Counter from '../components/ui/Counter';
 import ServiceCard from '../components/ui/ServiceCard';
 import ProjectCard from '../components/ui/ProjectCard';
@@ -33,7 +33,7 @@ export default function Home() {
         style={
           company?.hero_image_url
             ? {
-                backgroundImage: `linear-gradient(rgba(7,21,39,0.82), rgba(7,21,39,0.92)), url(${company.hero_image_url})`,
+                backgroundImage: `linear-gradient(rgba(7,21,39,0.82), rgba(7,21,39,0.92)), url(${resolveAssetUrl(company.hero_image_url)})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }
