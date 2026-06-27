@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Trash2, UploadCloud } from 'lucide-react';
-import { getGallery, adminUploadGalleryImages, adminDeleteGalleryImage } from '../../api/client';
+import { getGallery, adminUploadGalleryImages, adminDeleteGalleryImage, resolveAssetUrl } from '../../api/client';
 
 export default function AdminGallery() {
   const [images, setImages] = useState([]);
@@ -64,7 +64,7 @@ export default function AdminGallery() {
         ) : (
           images.map((img) => (
             <div key={img.id} className="group relative aspect-square overflow-hidden border border-steel/15">
-              <img src={img.image_url} alt={img.title || ''} className="h-full w-full object-cover" />
+              <img src={resolveAssetUrl(img.image_url)} alt={img.title || ''} className="h-full w-full object-cover" />
               <button
                 onClick={() => handleDelete(img.id)}
                 className="absolute right-1 top-1 hidden rounded-full bg-red-600 p-1 text-white group-hover:block"
