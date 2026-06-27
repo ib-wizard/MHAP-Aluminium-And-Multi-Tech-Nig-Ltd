@@ -21,47 +21,10 @@ const quotesRoutes = require('./routes/quotes.routes');
 const contactRoutes = require('./routes/contact.routes');
 const uploadRoutes = require('./routes/upload.routes');
 
-// Auto-initialize database on startup (creates tables + seeds admin if needed)
-async function initDb() {
-  try {
-    const { pool } = require('./config/db');
-    const schemaSql = fs.readFileSync(path.join(__dirname, '..', 'db', 'schema.sql'), 'utf8');
-    console.log('[DB] Applying schema...');
-    await pool.query(schemaSql);
-    console.log('[DB] Schema ready.');
-
-    const seedSql = fs.readFileSync(path.join(__dirname, '..', 'db', 'seed.sql'), 'utf8');
-    await pool.query(seedSql);
-    console.log('[DB] Seed data applied.');
-
-    const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM admin_users');
-    if (rows[0].count === 0) {
-      const username = process.env.SEED_ADMIN_USERNAME || 'admin';
-      const email = process.env.SEED_ADMIN_EMAIL || 'admin@mhapaluminum.com';
-      const password = process.env.SEED_ADMIN_PASSWORD || 'ChangeMe123!';
-      const hash = await bcrypt.hash(password, 12);
-      await pool.query(
-        `INSERT INTO admin_users (username, email, password_hash, role) VALUES ($1, $2, $3, 'superadmin')`,
-        [username, email, hash]
-      );
-      console.log('[DB] Admin user created:', email);
-    } else {
-      console.log('[DB] Admin user already exists.');
-    }
-  } catch (err) {
-    console.error('[DB] Init error:', err.message);
-  }
-}
-
-initDb();
-
 const app = express();
 
-// Behind a reverse proxy (Render, Railway, Nginx, etc) so rate-limiting and
-// secure cookies see the real client IP / protocol.
 app.set('trust proxy', 1);
 
-// --- Security headers -------------------------------------------------
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -69,7 +32,6 @@ app.use(
   })
 );
 
-// --- CORS: only the configured frontend origin may call this API -----
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
   .map((o) => o.trim());
@@ -94,7 +56,6 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 }
 
-// Global API rate limit
 app.use(
   '/api',
   rateLimit({
@@ -105,13 +66,10 @@ app.use(
   })
 );
 
-// --- Static file serving for uploaded images/PDFs --------------------
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// --- Health check ----------------------------------------------------
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-// --- Routes ----------------------------------------------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/services', servicesRoutes);
@@ -126,8 +84,54 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+app.listen(PORT, async () => {
   console.log(`MHAP Aluminum API listening on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
+
+  // Auto-initialize database after server starts
+  try {
+    console.log('[DB] Starting database initialization...');
+    console.log('[DB] DATABASE_URL present:', !!process.env.DATABASE_URL);
+
+    const { pool } = require('./config/db');
+
+    // Test connection first
+    await pool.query('SELECT 1');
+    console.log('[DB] Database connection successful.');
+
+    const schemaPath = path.join(__dirname, '..', 'db', 'schema.sql');
+    console.log('[DB] Reading schema from:', schemaPath);
+    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    await pool.query(schemaSql);
+    console.log('[DB] Schema applied successfully.');
+
+    const seedPath = path.join(__dirname, '..', 'db', 'seed.sql');
+    const seedSql = fs.readFileSync(seedPath, 'utf8');
+    await pool.query(seedSql);
+    console.log('[DB] Seed data applied.');
+
+    const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM admin_users');
+    console.log('[DB] Admin user count:', rows[0].count);
+
+    if (rows[0].count === 0) {
+      const username = process.env.SEED_ADMIN_USERNAME || 'admin';
+      const email = process.env.SEED_ADMIN_EMAIL || 'admin@mhapaluminum.com';
+      const password = process.env.SEED_ADMIN_PASSWORD || 'ChangeMe123!';
+      const hash = await bcrypt.hash(password, 12);
+      await pool.query(
+        `INSERT INTO admin_users (username, email, password_hash, role) VALUES ($1, $2, $3, 'superadmin')`,
+        [username, email, hash]
+      );
+      console.log('[DB] Admin user created:', email);
+    } else {
+      console.log('[DB] Admin user already exists, skipping.');
+    }
+
+    console.log('[DB] Initialization complete!');
+  } catch (err) {
+    console.error('[DB] INIT FAILED:', err.message);
+    console.error('[DB] Full error:', err);
+  }
 });
 
 module.exports = app;
