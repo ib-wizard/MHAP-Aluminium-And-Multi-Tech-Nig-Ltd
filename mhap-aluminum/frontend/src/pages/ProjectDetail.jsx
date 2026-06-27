@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, Calendar, User, ArrowLeft } from 'lucide-react';
 import { useQuery } from '../hooks/useQuery';
-import { getProject } from '../api/client';
+import { getProject, resolveAssetUrl } from '../api/client';
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -57,10 +57,10 @@ export default function ProjectDetail() {
 
       <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {project.cover_image_url && (
-          <img src={project.cover_image_url} alt={project.title} className="aspect-[4/3] w-full object-cover" />
+          <img src={resolveAssetUrl(project.cover_image_url)} alt={project.title} className="aspect-[4/3] w-full object-cover" />
         )}
         {(project.images || []).map((img) => (
-          <img key={img.id} src={img.image_url} alt={img.caption || project.title} className="aspect-[4/3] w-full object-cover" />
+          <img key={img.id} src={resolveAssetUrl(img.image_url)} alt={img.caption || project.title} className="aspect-[4/3] w-full object-cover" />
         ))}
       </div>
 
