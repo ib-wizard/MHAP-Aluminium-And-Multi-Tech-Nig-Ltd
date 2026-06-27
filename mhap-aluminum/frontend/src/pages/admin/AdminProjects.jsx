@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, X, Save, Images, UploadCloud } from 'lucide-react';
 import {
   adminGetAllProjects, adminCreateProject, adminUpdateProject, adminDeleteProject,
-  adminUploadProjectImages, adminDeleteProjectImage, getProject,
+  adminUploadProjectImages, adminDeleteProjectImage, getProject, resolveAssetUrl,
 } from '../../api/client';
 
 const emptyForm = {
@@ -215,7 +215,7 @@ function ProjectGalleryModal({ project, onClose }) {
           ) : (
             images.map((img) => (
               <div key={img.id} className="group relative aspect-square overflow-hidden">
-                <img src={img.image_url} alt="" className="h-full w-full object-cover" />
+                <img src={resolveAssetUrl(img.image_url)} alt="" className="h-full w-full object-cover" />
                 <button
                   onClick={() => handleDelete(img.id)}
                   className="absolute right-1 top-1 hidden rounded-full bg-red-600 p-1 text-white group-hover:block"
