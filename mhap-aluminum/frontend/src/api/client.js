@@ -4,6 +4,19 @@ const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 export const api = axios.create({ baseURL });
 
+// Resolve relative upload paths (e.g. "/uploads/gallery/x.jpg") returned by
+// the API against the backend's actual origin. In production the frontend
+// and backend usually run on different domains/services, so a bare
+// relative path would otherwise resolve against the frontend's own origin
+// and 404. Already-absolute URLs (http/https) are returned unchanged.
+const backendOrigin = baseURL.replace(/\/api\/?$/, '');
+
+export function resolveAssetUrl(path) {
+  if (!path) return path;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${backendOrigin}${path}`;
+}
+
 // Attach the admin JWT (if present) to every outgoing request.
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('mhap_admin_token');
