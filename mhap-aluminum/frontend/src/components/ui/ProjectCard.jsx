@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
+import { resolveAssetUrl } from '../../api/client';
 
 export default function ProjectCard({ project }) {
   const year = project.project_date ? new Date(project.project_date).getFullYear() : null;
@@ -12,7 +13,7 @@ export default function ProjectCard({ project }) {
       <div className="relative aspect-[4/3] overflow-hidden bg-steel-light">
         {project.cover_image_url ? (
           <img
-            src={project.cover_image_url}
+            src={resolveAssetUrl(project.cover_image_url)}
             alt={project.title}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
