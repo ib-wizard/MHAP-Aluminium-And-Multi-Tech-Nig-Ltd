@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { UploadCloud, Save } from 'lucide-react';
-import { getCompany, adminUpdateCompany, adminUploadBranding, adminChangePassword } from '../../api/client';
+import { getCompany, adminUpdateCompany, adminUploadBranding, adminChangePassword, resolveAssetUrl } from '../../api/client';
 
 const emptyForm = {
   company_name: '', slogan: '', logo_url: '', about_text: '', mission: '', vision: '',
@@ -227,7 +227,7 @@ function ImageField({ label, url, uploading, onFile }) {
     <Field label={label}>
       <div className="flex items-center gap-4">
         {url ? (
-          <img src={url} alt={label} className="h-16 w-16 object-cover" />
+          <img src={resolveAssetUrl(url)} alt={label} className="h-16 w-16 object-cover" />
         ) : (
           <div className="flex h-16 w-16 items-center justify-center bg-steel-light/40 font-mono text-[10px] text-steel-dark">NONE</div>
         )}
